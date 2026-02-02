@@ -1,26 +1,30 @@
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap');
 @import "tailwindcss";
+
 @plugin "daisyui"{
-    themes: light --default, dark --prefersdark, cupcake;
+    themes: light --default;
 };
+
 @plugin "daisyui/theme"{
-    --color-base-100: oklch(98% 0.02 240);
-  --color-base-200: oklch(95% 0.03 240);
-  --color-base-300: oklch(92% 0.04 240);
-  --color-base-content: oklch(20% 0.05 240);
-  --color-primary: oklch(55% 0.3 240);
-  --color-primary-content: oklch(98% 0.01 240);
-  --color-secondary: oklch(70% 0.25 200);
-  --color-secondary-content: oklch(98% 0.01 200);
-  --color-accent: oklch(65% 0.25 160);
-  --color-accent-content: oklch(98% 0.01 160);
-  --color-neutral: oklch(50% 0.05 240);
-  --color-neutral-content: oklch(98% 0.01 240);
-  --color-info: oklch(70% 0.2 220);
-  --color-info-content: oklch(98% 0.01 220);
-  --color-success: oklch(65% 0.25 140);
-  --color-success-content: oklch(98% 0.01 140);
-  --color-warning: oklch(80% 0.25 80);
-  --color-warning-content: oklch(20% 0.05 80);
-  --color-error: oklch(65% 0.3 30);
-  --color-error-content: oklch(98% 0.01 30);
+          /* Setting Primary to a vibrant Emerald Blue/Cyan */
+          "primary": "#0077b6", 
+          
+          /* Setting Secondary to Emerald Green */
+          "secondary": "#10b981", 
+          
+          "accent": "#f59e0b",
+          "neutral": "#1f2937",
+          "base-100": "#f9fafb",
+          "info": "#3abff8",
+          "success": "#36d399",
+          "warning": "#fbbd23",
+          "error": "#f87272"
+}
+
+body {
+  font-family: "Urbanist", sans-serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+  background-color: var(--fallback-b1,oklch(var(--b1))); /* Ensures base-100 is applied */
+  color: var(--fallback-bc,oklch(var(--bc)));    /* Sets default text color */
 }
