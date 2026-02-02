@@ -9,7 +9,7 @@ const Navbar = () => {
         <li>
             <NavLink 
                 to="/" 
-                className={({ isActive }) => isActive ? "text-primary font-bold" : "text-neutral"}
+                className={({ isActive }) => isActive ? "text-secondary font-bold" : "text-neutral"}
             >
                 Home
             </NavLink>
@@ -17,7 +17,7 @@ const Navbar = () => {
         <li>
             <NavLink 
                 to="/tuitions" 
-                className={({ isActive }) => isActive ? "text-primary font-bold" : "text-neutral"}
+                className={({ isActive }) => isActive ? "text-secondary font-bold" : "text-neutral"}
             >
                 Tuitions
             </NavLink>
@@ -25,7 +25,7 @@ const Navbar = () => {
         <li>
             <NavLink 
                 to="/tutors" 
-                className={({ isActive }) => isActive ? "text-primary font-bold" : "text-neutral"}
+                className={({ isActive }) => isActive ? "text-secondary font-bold" : "text-neutral"}
             >
                 Tutors
             </NavLink>
@@ -33,7 +33,7 @@ const Navbar = () => {
         <li>
             <NavLink 
                 to="/about" 
-                className={({ isActive }) => isActive ? "text-primary font-bold" : "text-neutral"}
+                className={({ isActive }) => isActive ? "text-secondary font-bold" : "text-neutral"}
             >
                 About
             </NavLink>
@@ -41,7 +41,7 @@ const Navbar = () => {
         <li>
             <NavLink 
                 to="/contact" 
-                className={({ isActive }) => isActive ? "text-primary font-bold" : "text-neutral"}
+                className={({ isActive }) => isActive ? "text-secondary font-bold" : "text-neutral"}
             >
                 Contact
             </NavLink>
@@ -71,9 +71,9 @@ const Navbar = () => {
                     {links}
                     </ul>
                 </div>
-                <div className="navbar-end">
+                <div className="navbar-end gap-5">
                     <NavLink to="/login"><button className='btn'>Log In</button></NavLink>
-                    <NavLink to="/register"><button className='btn'>Join</button></NavLink>
+                    <NavLink to="/register"><button className='btn btn-primary font-bold p-4'>Join</button></NavLink>
                 </div>
             </div>
         </div>
