@@ -1,4 +1,0 @@
-/* Nav.css */
-.active {
-    border-bottom: 2px solid var(--fallback-p, oklch(var(--p)));
-}
