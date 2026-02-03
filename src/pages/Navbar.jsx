@@ -3,7 +3,7 @@ import Logo from '../components/shared/Logo';
 import { NavLink } from 'react-router';
 
 const Navbar = () => {
-    // Added 'to' paths and some styling for the links
+    // NavLink items with active state styling
     const links = <>
             <li><NavLink to="/" className={({ isActive }) => isActive ? "text-primary font-bold" : "text-white"}>Home</NavLink></li>
             <li><NavLink to="/tuitions" className={({ isActive }) => isActive ? "text-primary font-bold" : "text-white"}>Tuitions</NavLink></li>
@@ -13,11 +13,15 @@ const Navbar = () => {
     </>
 
     return (
-        // Added 'mt-4' to give it that "floating" space from the top
-        <div className="absolute top-0 left-0 w-full z-50 h-5 bg-transparent mt-4">
-            <div className="max-w-7xl mx-auto px-4 h-full">
-                {/* Changed bg-base-100 to transparent/blur for that glass look */}
-                <div className="navbar bg-white/5 backdrop-blur-md border border-white/10 shadow-2xl rounded-2xl px-4">
+        /* Parent Container: 
+           - 'fixed' makes it stay on top while scrolling.
+           - 'mt-4' gives the floating effect.
+           - 'px-4' ensures it doesn't touch screen edges on mobile.
+        */
+        <div className="fixed top-0 left-0 w-full z-50 mt-4 px-4">
+            <div className="max-w-7xl mx-auto h-full">
+                {/* Navbar Glass Box */}
+                <div className="navbar backdrop-blur-md border border-white/10 shadow-2xl rounded-2xl px-4 py-1 bg-black/30">
                     <div className="navbar-start">
                         <div className="dropdown">
                             <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden text-white">
@@ -27,9 +31,9 @@ const Navbar = () => {
                             </div>
                             <ul 
                                 tabIndex={0} 
-                                className="menu menu-sm dropdown-content mt-5 w-52 p-2 shadow-xl z-1 
-                                        rounded-box border border-white/10 
-                                        bg-black/80 backdrop-blur-lg text-white" 
+                                className="menu menu-sm dropdown-content mt-5 w-52 p-4 shadow-2xl z-1 
+                                        rounded-2xl border border-white/10 
+                                        bg-black/90 backdrop-blur-xl text-white" 
                             >
                                 {links}
                             </ul>
@@ -38,16 +42,17 @@ const Navbar = () => {
                     </div>
 
                     <div className="navbar-center hidden lg:flex">
-                        <ul className="menu menu-horizontal px-1 gap-2 text-white">
+                        <ul className="menu menu-horizontal px-1 gap-2 text-white font-medium">
                             {links}
                         </ul>
                     </div>
 
                     <div className="navbar-end gap-3">
-                        <NavLink to="/login" className="btn text-primary rounded-full hover:text-white hover:bg-primary transition font-medium mr-2 hover:font-bold">Log In</NavLink>
+                        <NavLink to="/login" className="btn btn-ghost text-white rounded-full hover:text-primary transition font-medium hidden sm:flex">
+                            Log In
+                        </NavLink>
                         <NavLink to="/register">
-                            {/* Combined DaisyUI button with your Primary Orange */}
-                            <button className="bg-primary btn  rounded-full px text-white border-none hover:bg-amber-400 hover:text-white ">
+                            <button className="bg-primary hover:bg-orange-600 btn rounded-full px-8 text-white border-none transition-all shadow-lg">
                                 Sign up
                             </button>
                         </NavLink>
