@@ -1,14 +1,21 @@
 import React from 'react';
-import { Outlet } from 'react-router';
+import { Outlet, useNavigation } from 'react-router';
 import Navbar from '../pages/Navbar';
 import Footer from '../pages/Footer';
+import Loader from '../components/shared/Loader';
 
 const RootLayout = () => {
+    const navigation = useNavigation();
+
+    const isLoading = navigation.state === "loading"
     return (
-        <div>
+        <div className="min-h-screen flex flex-col">
+           <main className="grow relative">
+            {isLoading && <Loader fullPage={true}></Loader>}
             <Navbar></Navbar>
             <Outlet></Outlet>
             <Footer></Footer>
+           </main>
         </div>
     );
 };

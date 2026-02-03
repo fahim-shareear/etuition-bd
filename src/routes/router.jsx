@@ -8,10 +8,14 @@ import Contact from "../pages/Contact"
 import Login from "../pages/Login"
 import Register from "../pages/Register"
 import Notfound from "../components/shared/errors/Notfound"
+import Loader from "../components/shared/Loader"
 
 export const router = createBrowserRouter([
     {
-        path: "/", Component: RootLayout, ErrorBoundary: Notfound,
+        path: "/",
+        hydrateFallbackElement: <Loader fullPage={true}></Loader>, 
+        Component: RootLayout, 
+        ErrorBoundary: Notfound,
         children:[
             {index: true, Component: Home},
             {path: "/tuitions", Component: Tuitions},
