@@ -27,6 +27,7 @@ const Brands = () => {
     return (
         <section className="py-10 bg-white border-y border-slate-50">
             <div className="max-w-7xl mx-auto px-6">
+                <h1 className="text-2xl font-bold text-center mb-8">We are <span className="text-primary">Featured</span> in:</h1>
                 <Swiper
                     modules={[Autoplay]}
                     spaceBetween={50}
