@@ -6,7 +6,7 @@ import {NavLink} from "react-router";
 
 const Banner = () => {
     return (
-        <div className="relative w-full h-180 overflow-hidden">
+        <div className="relative w-full h-177 overflow-hidden">
             {/* Background Image Container */}
             <div className="absolute inset-0 bg-[url('/src/assets/background_banner.jpg')] bg-cover bg-center bg-no-repeat">
                 
