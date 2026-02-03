@@ -1,30 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap');
 @import "tailwindcss";
-
 @plugin "daisyui"{
-    themes: light --default;
+  themes: light --default, dark --prefersdark;
 };
 
-@plugin "daisyui/theme"{
-          /* Setting Primary to a vibrant Emerald Blue/Cyan */
-          "primary": "#0077b6", 
-          
-          /* Setting Secondary to Emerald Green */
-          "secondary": "#10b981", 
-          
-          "accent": "#f59e0b",
-          "neutral": "#1f2937",
-          "base-100": "#f9fafb",
-          "info": "#3abff8",
-          "success": "#36d399",
-          "warning": "#fbbd23",
-          "error": "#f87272"
-}
-
-body {
-  font-family: "Urbanist", sans-serif;
-  font-optical-sizing: auto;
-  font-style: normal;
-  background-color: var(--fallback-b1,oklch(var(--b1))); /* Ensures base-100 is applied */
-  color: var(--fallback-bc,oklch(var(--bc)));    /* Sets default text color */
+@plugin "daisyui/theme" {
+  name: "light";
+  default: true;
+  --color-primary: "#ed5614";
+  --color-secondary: teal;
 }
