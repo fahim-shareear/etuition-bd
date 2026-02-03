@@ -7,10 +7,11 @@ import About from "../pages/About"
 import Contact from "../pages/Contact"
 import Login from "../pages/Login"
 import Register from "../pages/Register"
+import Notfound from "../components/shared/errors/Notfound"
 
 export const router = createBrowserRouter([
     {
-        path: "/", Component: RootLayout,
+        path: "/", Component: RootLayout, ErrorBoundary: Notfound,
         children:[
             {index: true, Component: Home},
             {path: "/tuitions", Component: Tuitions},

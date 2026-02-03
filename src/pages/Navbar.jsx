@@ -42,7 +42,7 @@ const Navbar = () => {
                         <NavLink to="/login" className="btn text-primary rounded-full hover:text-white hover:bg-primary transition font-medium mr-2 hover:font-bold">Log In</NavLink>
                         <NavLink to="/register">
                             {/* Combined DaisyUI button with your Primary Orange */}
-                            <button className="bg-primary btn rounded-full px-6 text-white border-none hover:bg-amber-400 hover:text-white">
+                            <button className="bg-primary btn  rounded-full px text-white border-none hover:bg-amber-400 hover:text-white ">
                                 Sign up
                             </button>
                         </NavLink>
