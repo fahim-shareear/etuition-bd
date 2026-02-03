@@ -5,6 +5,8 @@ import Home from "../pages/Home"
 import Tutors from "../pages/Tutors"
 import About from "../pages/About"
 import Contact from "../pages/Contact"
+import Login from "../pages/Login"
+import Register from "../pages/Register"
 
 export const router = createBrowserRouter([
     {
@@ -14,7 +16,9 @@ export const router = createBrowserRouter([
             {path: "/tuitions", Component: Tuitions},
             {path: "/tutors", Component: Tutors},
             {path: "/about", Component: About},
-            {path: "/contact", Component: Contact}
+            {path: "/contact", Component: Contact},
+            {path: "/login", Component: Login},
+            {path: "/register", Component: Register}
         ]
     }
 ])
