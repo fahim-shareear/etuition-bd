@@ -7,11 +7,12 @@ import useAuth from '../hooks/useAuth';
 import toast from "react-hot-toast";
 import { NavLink, useNavigate } from 'react-router';
 import { IoEye } from "react-icons/io5";
+import axios from 'axios';
 import { IoMdEyeOff } from "react-icons/io";
 
 const Register = () => {
     const { register, handleSubmit, reset, watch, formState: { errors } } = useForm();
-    const { signInWithGoogle, createUserWithEmail } = useAuth();
+    const { signInWithGoogle, createUserWithEmail, updateUserProfile } = useAuth();
     const [userType, setUserType] = useState('tutor');
     const [showPass, setShowPass] = useState(false);
     const [showRePass, setShowRePass] = useState(false);
@@ -36,12 +37,35 @@ const Register = () => {
     };
     
     const hadnleRegistration = (data) => {
+        const profileImg = data.image[0];
         const toastId = toast.loading("Creating your account...");
         createUserWithEmail(data.email, data.password)
             .then((result) => {
-                console.log(result.user)
+                console.log(result.user);
+                const formData = new FormData();
+                formData.append('image', profileImg);
+                const imageAPIURL = `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_image_BB}`
+                axios.post(imageAPIURL, formData)
+                    .then((res)=>{
+                        console.log("After Image Upload", res.data.data.url);
+                        const userProfile = {
+                            displayName: data.name, photoURL: res.data.data.url
+                        }
+                        updateUserProfile(userProfile)
+                            .then(()=>{
+                                toast.success("User profile created and updated")
+                            })
+                            .catch(error=>{
+                                toast.error(error.message);
+                                return;
+                            })
+                    })
+                    .catch(error =>{
+                        toast.error(error.message);
+                    })
+
                 toast.success(`Success! Registered as ${userType}`, { id: toastId });
-                navigate('/');
+                // navigate('/');
             })
             .catch((error) => {
                 toast.error(error.message, { id: toastId });
@@ -106,6 +130,13 @@ const Register = () => {
                                     <label className="label font-bold text-xs uppercase tracking-wide">Full Name</label>
                                     <input type="text" className={`input w-full ${errors.name ? 'border-red-500' : ''}`} placeholder="Your Name" {...register("name", {required: "Name is required"})} />
                                     {errors.name && <p className="text-red-500 text-[10px] mt-1 font-bold italic">*{errors.name.message}</p>}
+                                </div>
+
+                                {/* Photo */}
+                                <div className="md:col-span-2">
+                                    <label className="label font-bold text-xs uppercase tracking-wide">Your Photo</label>
+                                    <input type="file" className={`file-input w-full ${errors.image ? 'border-red-500' : ''}`} placeholder="Your Photo" {...register("image", {required: "Photo is required"})} />
+                                    {errors.image && <p className="text-red-500 text-[10px] mt-1 font-bold italic">*{errors.image.message}</p>}
                                 </div>
 
                                 {/* Email */}
