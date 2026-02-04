@@ -3,6 +3,7 @@ import { Outlet, useNavigation } from 'react-router';
 import Navbar from '../pages/Navbar';
 import Footer from '../pages/Footer';
 import Loader from '../components/shared/Loader';
+import { Toaster } from 'react-hot-toast';
 
 const RootLayout = () => {
     const navigation = useNavigation();
@@ -16,6 +17,7 @@ const RootLayout = () => {
             <Outlet></Outlet>
             <Footer></Footer>
            </main>
+           <Toaster position="top-right" reverseOrder={false} />
         </div>
     );
 };
