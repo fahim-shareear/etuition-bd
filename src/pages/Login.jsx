@@ -1,192 +1,143 @@
-import React, { useState, use } from 'react'; // 'use' hook ইমপোর্ট করা হয়েছে
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from 'react';
+import loginanimation from "../assets/Login.json";
 import Lottie from 'lottie-react';
-import loginAnimation from '../assets/Login.json';
+import useAuth from '../hooks/useAuth';
 import { useForm } from 'react-hook-form';
-import { AuthContext } from '../providers/AuthContext'; 
-import useAxios from '../hooks/useAxios';
 import toast from 'react-hot-toast';
-import { useLocation, useNavigate } from 'react-router'; // 'react-router' থেকে ইমপোর্ট করা হয়েছে
+import { useNavigate } from 'react-router';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Login = () => {
-    // useContext এর বদলে নতুন 'use' hook ব্যবহার করা হয়েছে
-    const { signInWithEmail, signInWithGoogle } = use(AuthContext);
-    const axiosSecure = useAxios();
-    
-    const [isSubmitting, setIsSubmitting] = useState(false);
-
-    const navigate = useNavigate();
-    const location = useLocation();
-    const from = location.state?.from?.pathname || "/";
-
+    const { signInWithEmail } = useAuth();
+    // formState থেকে errors অবজেক্টটি ডিস্ট্রাকচার করা হয়েছে
     const { register, handleSubmit, reset, formState: { errors } } = useForm();
-    const [userType, setUserType] = useState('tutor');
+    const navigate = useNavigate();
+    const [userType, setUserType] = useState("tutor");
 
-    const handleTypeSwitch = (type) => {
+    const hadnleLogin = (data) => {
+        const toastId = toast.loading("Logging in...");
+        signInWithEmail(data.email, data.password)
+            .then((result) => {
+                console.log(result.user);
+                toast.success("Login Successful!", { id: toastId });
+                // হোম পেজে রি-রাউটিং
+                navigate('/', { replace: true });
+            })
+            .catch((error) => {
+                console.error(error);
+                toast.error(error.message || "Login failed. Please try again.", { id: toastId });
+            });
+    };
+
+    const handleToggle = (type) => {
         setUserType(type);
-        reset(); 
-    };
-
-    const handleGoogleLogin = async () => {
-        const toastId = toast.loading("Logging in with Google...");
-        try {
-            const result = await signInWithGoogle();
-            const user = result.user;
-
-            // ব্যাকেন্ডে টোকেন/কুকি সেট করার রিকোয়েস্ট
-            await axiosSecure.post('/jwt', { email: user.email });
-            
-            toast.success("Login Successful!", { id: toastId });
-            navigate(from, { replace: true });
-        } catch (error) {
-            toast.error(error.message || "Google Login Failed", { id: toastId });
-        }
-    };
-
-    const handleLoginSubmit = async (data) => {
-        setIsSubmitting(true);
-        const toastId = toast.loading(`Verifying ${userType} credentials...`);
-        
-        try {
-            const result = await signInWithEmail(data.email, data.password);
-            const user = result.user;
-
-            // টোকেন জেনারেশন এবং HTTP-only Cookie সেট করার জন্য ব্যাকেন্ড কল
-            const res = await axiosSecure.post('/jwt', { email: user.email });
-
-            if (res.data.success) {
-                toast.success(`Welcome back!`, { id: toastId });
-                reset();
-                navigate(from, { replace: true });
-            }
-        } catch (error) {
-            console.error("Login Error:", error);
-            const errorMessage = error.code === 'auth/invalid-credential' 
-                ? "Invalid email or password" 
-                : (error.response?.data?.message || "Login failed. Please try again.");
-            
-            toast.error(errorMessage, { id: toastId });
-        } finally {
-            setIsSubmitting(false); 
-        }
+        reset();
     };
 
     return (
-        <div className="w-full flex items-center justify-center p-2 lg:p-4">
-            <div className="max-w-6xl w-full bg-white rounded-4xl shadow-2xl flex flex-col lg:flex-row overflow-hidden border border-slate-100">
+        <div className="bg-white p-8 lg:p-12 rounded-3xl shadow-xl border border-white/20 max-w-md lg:max-w-5xl mx-auto flex flex-col md:flex-row items-center gap-10">
+            
+            {/* Lottie Animation Side */}
+            <div className="md:w-1/2 justify-center hidden lg:flex">
+                <div className="w-full max-w-sm">
+                    <Lottie animationData={loginanimation} loop={true} />
+                </div>
+            </div>
+
+            {/* Login Form Side */}
+            <div className="md:w-1/2 w-full">
                 
-                {/* Left side: Illustration */}
-                <div className="hidden lg:flex lg:w-5/12 bg-slate-50/50 items-center justify-center p-8 border-r border-slate-100">
-                    <div className="w-full max-w-sm text-center">
-                        <Lottie animationData={loginAnimation} loop={true} className="w-64 mx-auto" />
-                        <div className="mt-6">
-                            <h3 className="text-xl font-black text-slate-800 italic uppercase tracking-tighter">
-                                {userType === 'tutor' ? "Welcome Back, Instructor" : "Ready to Learn?"}
-                            </h3>
-                            <p className="text-slate-400 mt-2 text-xs font-medium px-4 leading-relaxed">
-                                Access your dashboard and manage your educational journey.
-                            </p>
-                        </div>
-                    </div>
+                {/* Role Switcher */}
+                <div className="flex bg-slate-100 p-1 rounded-xl mb-6 relative w-64 shadow-inner">
+                    <motion.div 
+                        animate={{ x: userType === 'tutor' ? 0 : '100%' }}
+                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        className="absolute top-1 left-1 w-[calc(50%-4px)] h-[calc(100%-8px)] bg-primary rounded-lg shadow-md"
+                    />
+                    <button 
+                        type="button"
+                        onClick={() => handleToggle('tutor')} 
+                        className={`relative flex-1 py-2 z-10 font-bold text-xs transition-colors ${userType === 'tutor' ? 'text-white' : 'text-slate-500'}`}
+                    >
+                        Tutor
+                    </button>
+                    <button 
+                        type="button"
+                        onClick={() => handleToggle('student')} 
+                        className={`relative flex-1 py-2 z-10 font-bold text-xs transition-colors ${userType === 'student' ? 'text-white' : 'text-slate-500'}`}
+                    >
+                        Student
+                    </button>
                 </div>
 
-                {/* Right side: Form */}
-                <div className="w-full lg:w-7/12 p-6 md:p-12 flex flex-col justify-center">
-                    <div className="text-center mb-6">
-                        <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Login</h2>
-                        <div className="w-12 h-1 bg-orange-500 mx-auto mt-1 rounded-full"></div>
-                    </div>
-
-                    <div className="w-full max-w-md mx-auto mb-8">
-                        <div className="flex bg-slate-100 p-1.5 rounded-2xl relative shadow-inner w-full">
-                            <motion.div 
-                                animate={{ x: userType === 'tutor' ? 0 : '100%' }}
-                                transition={{ type: "spring", stiffness: 350, damping: 30 }}
-                                className="absolute top-1.5 left-1.5 w-[calc(50%-12px)] h-[calc(100%-12px)] bg-orange-600 rounded-xl shadow-lg"
-                            />
-                            <button type="button" onClick={() => handleTypeSwitch('tutor')} className={`relative flex-1 py-3 z-10 font-black text-[11px] uppercase tracking-widest transition-colors duration-300 ${userType === 'tutor' ? 'text-white' : 'text-slate-400'}`}>Tutor</button>
-                            <button type="button" onClick={() => handleTypeSwitch('student')} className={`relative flex-1 py-3 z-10 font-black text-[11px] uppercase tracking-widest transition-colors duration-300 ${userType === 'student' ? 'text-white' : 'text-slate-400'}`}>Student</button>
-                        </div>
-                    </div>
-
-                    <AnimatePresence mode="wait">
-                        <motion.form 
-                            key={userType}
-                            initial={{ x: 20, opacity: 0 }}
-                            animate={{ x: 0, opacity: 1 }}
-                            exit={{ x: -20, opacity: 0 }}
-                            onSubmit={handleSubmit(handleLoginSubmit)}
-                            className="space-y-4 max-w-md mx-auto w-full"
-                        >
-                            {userType === 'student' && (
-                                <div className="mb-2">
-                                    <button type="button" onClick={handleGoogleLogin} className="w-full flex items-center justify-center gap-3 py-3 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-all shadow-sm active:scale-[0.98]">
-                                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-4 h-4" />
-                                        <span className="text-xs font-bold text-slate-700">Continue with Google</span>
-                                    </button>
-                                    <div className="relative flex items-center py-5">
-                                        <div className="grow border-t border-slate-100"></div>
-                                        <span className="shrink mx-3 text-[9px] font-black uppercase tracking-widest text-slate-400">Or Email</span>
-                                        <div className="grow border-t border-slate-100"></div>
-                                    </div>
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={userType}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                    >
+                        <h1 className="font-bold text-2xl text-primary mb-5">Login As a {userType === 'tutor' ? 'Tutor' : 'Student'}</h1>
+                        
+                        <form onSubmit={handleSubmit(hadnleLogin)} className="w-full">
+                            <fieldset className="fieldset flex flex-col gap-4">
+                                
+                                {/* Email Field */}
+                                <div>
+                                    <label className="label font-bold text-xs uppercase tracking-wide">Email</label>
+                                    <input 
+                                        type="email" 
+                                        className={`input w-full ${errors.email ? 'border-red-500' : ''}`} 
+                                        placeholder="Enter your email" 
+                                        {...register("email", { 
+                                            required: "Email is required",
+                                            pattern: {
+                                                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                                                message: "Invalid email address"
+                                            }
+                                        })} 
+                                    />
+                                    {errors.email && <p className="text-red-500 text-[10px] mt-1 font-bold lowercase italic">*{errors.email.message}</p>}
                                 </div>
-                            )}
 
-                            <InputField 
-                                label="Email Address" 
-                                type="email" 
-                                placeholder="example@mail.com" 
-                                register={register("email", { required: "Email is required" })}
-                                error={errors.email}
-                                required 
-                            />
-
-                            <div className="space-y-1">
-                                <InputField 
-                                    label="Password" 
-                                    type="password" 
-                                    placeholder="••••••••" 
-                                    register={register("password", { required: "Password is required", minLength: { value: 6, message: "Min 6 characters" } })}
-                                    error={errors.password}
-                                    required 
-                                />
-                                <div className="text-right">
-                                    <button type="button" className="text-[10px] font-bold text-orange-600 cursor-pointer hover:underline uppercase tracking-wider">Forgot Password?</button>
+                                {/* Password Field */}
+                                <div>
+                                    <label className="label font-bold text-xs uppercase tracking-wide">Password</label>
+                                    <input 
+                                        type="password" 
+                                        className={`input w-full ${errors.password ? 'border-red-500' : ''}`} 
+                                        placeholder="Enter password" 
+                                        {...register("password", { 
+                                            required: "Password is required",
+                                            minLength: { value: 6, message: "Password must be at least 6 characters" }
+                                        })} 
+                                    />
+                                    {errors.password && <p className="text-red-500 text-[10px] mt-1 font-bold lowercase italic">*{errors.password.message}</p>}
                                 </div>
-                            </div>
 
-                            <SubmitButton 
-                                text={isSubmitting ? "Verifying..." : `Login as ${userType}`} 
-                                color={userType === 'tutor' ? 'bg-orange-600' : 'bg-slate-900'} 
-                                disabled={isSubmitting} 
-                            />
-                        </motion.form>
-                    </AnimatePresence>
-                </div>
+                                <div className="flex justify-between items-center mt-2">
+                                    <label className="cursor-pointer label p-0 gap-2">
+                                        <input type="checkbox" className="checkbox checkbox-xs checkbox-primary" />
+                                        <span className="label-text text-xs">Remember me</span>
+                                    </label>
+                                    <span 
+                                        className="text-xs font-bold text-primary hover:underline cursor-pointer"
+                                        onClick={() => toast.success("Feature coming soon!")}
+                                    >
+                                        Forgot password?
+                                    </span>
+                                </div>
+
+                                <button type="submit" className="btn btn-primary mt-4 w-full uppercase font-black">
+                                    Login
+                                </button>
+                            </fieldset>
+                        </form>
+                    </motion.div>
+                </AnimatePresence>
             </div>
         </div>
     );
 };
-
-// --- Reusable Components ---
-
-const InputField = ({ label, required, register, error, ...props }) => (
-    <div className="flex flex-col gap-1.5">
-        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">{label} {required && <span className="text-orange-500">*</span>}</label>
-        <input {...props} {...register} className={`w-full px-5 py-3.5 bg-slate-50 border ${error ? 'border-red-500' : 'border-slate-100'} rounded-xl focus:outline-none focus:border-orange-500 transition-all text-sm font-medium`} />
-        {error && <p className="text-red-500 text-[10px] mt-1 font-bold ml-1">{error.message}</p>}
-    </div>
-);
-
-const SubmitButton = ({ text, color, disabled }) => (
-    <div className="pt-2">
-        <button type="submit" disabled={disabled} className={`w-full py-4 ${color} text-white font-black text-[11px] uppercase tracking-[0.2em] rounded-xl hover:opacity-95 transition-all shadow-xl active:scale-95 disabled:bg-slate-400 disabled:cursor-not-allowed`}>
-            {text}
-        </button>
-        <div className="text-center mt-6">
-            <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Don't have an account? <span className="text-orange-600 cursor-pointer hover:underline ml-1">Register Now</span></p>
-        </div>
-    </div>
-);
 
 export default Login;

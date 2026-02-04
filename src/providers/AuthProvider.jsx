@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { AuthContext } from './AuthContext';
-import { GoogleAuthProvider, onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup, signOut } from 'firebase/auth';
+import { createUserWithEmailAndPassword, GoogleAuthProvider, onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup, signOut } from 'firebase/auth';
 import { auth } from "../utils/firebase.init";
 
 const googleProvider = new GoogleAuthProvider();
@@ -16,7 +16,7 @@ const AuthProvider = ({children}) => {
 
     const createUserWithEmail = (email, password) =>{
         setLoading(true);
-        return signInWithEmailAndPassword(auth, email, password);
+        return createUserWithEmailAndPassword(auth, email, password);
     };
 
     const signInWithEmail = (email, password)=>{
@@ -33,13 +33,13 @@ const AuthProvider = ({children}) => {
         const unsubcribe = onAuthStateChanged(auth, async (currentUser)=>{
             setUser(currentUser);
 
-            if(currentUser){
-                const token = await currentUser.getIdToken(token);
-                localStorage.setItem('e-tuition-token', token);
-                setLoading(false);
-            }else{
-                localStorage.removeItem('e-tuition-token');
-            }
+            // if(currentUser){
+            //     const token = await currentUser.getIdToken(token);
+            //     localStorage.setItem('e-tuition-token', token);
+            //     setLoading(false);
+            // }else{
+            //     localStorage.removeItem('e-tuition-token');
+            // }
             
             return () => unsubcribe();
         });
