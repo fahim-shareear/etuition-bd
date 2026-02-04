@@ -28,7 +28,7 @@ const Banner = () => {
                         </button>
                         </NavLink>
 
-                        <NavLink>
+                        <NavLink to="/register">
                             <button className="btn bg-orange-600 hover:bg-orange-700 border-none text-white">
                             Join As
                         </button>

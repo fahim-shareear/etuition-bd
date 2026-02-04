@@ -1,6 +1,8 @@
 import React from 'react';
 import Logo from '../components/shared/Logo';
 import { NavLink } from 'react-router';
+// Importing icons for mobile view
+import { FaSignInAlt, FaUserPlus } from 'react-icons/fa';
 
 const Navbar = () => {
     // NavLink items with active state styling
@@ -48,10 +50,21 @@ const Navbar = () => {
                     </div>
 
                     <div className="navbar-end gap-3">
+                        {/* Mobile Login Icon */}
+                        <NavLink to="/login" className="sm:hidden text-white text-xl p-2">
+                            <FaSignInAlt />
+                        </NavLink>
+
                         <NavLink to="/login" className="btn btn-ghost text-white rounded-full hover:text-primary transition font-medium hidden sm:flex">
                             Log In
                         </NavLink>
-                        <NavLink to="/register">
+
+                        {/* Mobile Register Icon */}
+                        <NavLink to="/register" className="sm:hidden text-primary text-xl p-2">
+                            <FaUserPlus />
+                        </NavLink>
+
+                        <NavLink to="/register" className="hidden sm:flex">
                             <button className="bg-primary hover:bg-orange-600 btn rounded-full px-8 text-white border-none transition-all shadow-lg">
                                 Sign up
                             </button>
