@@ -87,6 +87,7 @@ const Register = () => {
                     })
                     .catch(error =>{
                         toast.error(error.message);
+                        return
                     })
 
                 toast.success(`Success! Registered as ${userType}`, { id: toastId });
@@ -94,6 +95,7 @@ const Register = () => {
             })
             .catch((error) => {
                 toast.error(error.message, { id: toastId });
+                return
             })
     }
 
