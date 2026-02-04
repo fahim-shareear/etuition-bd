@@ -4,12 +4,14 @@ import Lottie from 'lottie-react';
 import useAuth from '../hooks/useAuth';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router';
+import { NavLink, useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'framer-motion';
+import { IoEye } from "react-icons/io5";
+import { IoMdEyeOff } from "react-icons/io";
 
 const Login = () => {
-    const { signInWithEmail } = useAuth();
-    // formState থেকে errors অবজেক্টটি ডিস্ট্রাকচার করা হয়েছে
+    const { signInWithEmail, signInWithGoogle } = useAuth(); // signInWithGoogle নিয়ে আসা হয়েছে
+    const [eye, setEye] = useState(false);
     const { register, handleSubmit, reset, formState: { errors } } = useForm();
     const navigate = useNavigate();
     const [userType, setUserType] = useState("tutor");
@@ -18,20 +20,38 @@ const Login = () => {
         const toastId = toast.loading("Logging in...");
         signInWithEmail(data.email, data.password)
             .then((result) => {
-                console.log(result.user);
+                console.log(result.user)
                 toast.success("Login Successful!", { id: toastId });
-                // হোম পেজে রি-রাউটিং
                 navigate('/', { replace: true });
             })
             .catch((error) => {
-                console.error(error);
-                toast.error(error.message || "Login failed. Please try again.", { id: toastId });
+                toast.error(error.message || "Login failed.", { id: toastId });
+                return;
+            });
+    };
+
+    // গুগল লগইন হ্যান্ডলার ফাংশন
+    const handleGoogleLogin = () => {
+        const toastId = toast.loading("Connecting with Google...");
+        signInWithGoogle()
+            .then((result) => {
+                console.log(result.user)
+                toast.success("Google Login Successful!", { id: toastId });
+                navigate('/', { replace: true });
+            })
+            .catch((error) => {
+                toast.error(error.message || "Google Login failed.", { id: toastId });
+                return
             });
     };
 
     const handleToggle = (type) => {
         setUserType(type);
         reset();
+    };
+
+    const handleEye = () => {
+        setEye(!eye);
     };
 
     return (
@@ -82,6 +102,26 @@ const Login = () => {
                         <form onSubmit={handleSubmit(hadnleLogin)} className="w-full">
                             <fieldset className="fieldset flex flex-col gap-4">
                                 
+                                {/* গুগল লগইন বাটন (শুধুমাত্র স্টুডেন্টদের জন্য) */}
+                                {userType === 'student' && (
+                                    <div className="space-y-4 mb-2">
+                                        <button 
+                                            type="button"
+                                            onClick={handleGoogleLogin}
+                                            className="btn btn-outline w-full flex items-center justify-center gap-2 border-slate-200 hover:bg-slate-50 text-slate-600 font-bold"
+                                        >
+                                            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-5 h-5" alt="Google" />
+                                            Continue with Google
+                                        </button>
+                                        
+                                        <div className="relative flex items-center">
+                                            <div className="grow border-t border-slate-200"></div>
+                                            <span className="shrink mx-4 text-slate-400 text-[10px] font-bold uppercase">Or Email</span>
+                                            <div className="grow border-t border-slate-200"></div>
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Email Field */}
                                 <div>
                                     <label className="label font-bold text-xs uppercase tracking-wide">Email</label>
@@ -103,15 +143,24 @@ const Login = () => {
                                 {/* Password Field */}
                                 <div>
                                     <label className="label font-bold text-xs uppercase tracking-wide">Password</label>
-                                    <input 
-                                        type="password" 
-                                        className={`input w-full ${errors.password ? 'border-red-500' : ''}`} 
-                                        placeholder="Enter password" 
-                                        {...register("password", { 
-                                            required: "Password is required",
-                                            minLength: { value: 6, message: "Password must be at least 6 characters" }
-                                        })} 
-                                    />
+                                    <div className="relative">
+                                        <input 
+                                            type={eye ? "text" : "password"} 
+                                            className={`input w-full pr-10 ${errors.password ? 'border-red-500' : ''}`} 
+                                            placeholder="Enter password" 
+                                            {...register("password", { 
+                                                required: "Password is required",
+                                                minLength: { value: 6, message: "Min 6 characters" }
+                                            })} 
+                                        />
+                                        <button 
+                                            type="button"
+                                            onClick={handleEye}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 text-xl"
+                                        >
+                                            {eye ? <IoMdEyeOff /> : <IoEye />}
+                                        </button>
+                                    </div>
                                     {errors.password && <p className="text-red-500 text-[10px] mt-1 font-bold lowercase italic">*{errors.password.message}</p>}
                                 </div>
 
@@ -133,6 +182,9 @@ const Login = () => {
                                 </button>
                             </fieldset>
                         </form>
+                        <div>
+                            <p>Don't have and Account Please <NavLink to="/register"><span className="text-primary font-bold text-[15px]">Register</span></NavLink></p>
+                        </div>
                     </motion.div>
                 </AnimatePresence>
             </div>

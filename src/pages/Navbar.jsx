@@ -1,10 +1,15 @@
 import React from 'react';
 import Logo from '../components/shared/Logo';
-import { NavLink } from 'react-router';
+import { NavLink, useNavigate } from 'react-router';
 // Importing icons for mobile view
 import { FaSignInAlt, FaUserPlus } from 'react-icons/fa';
+import useAuth from '../hooks/useAuth';
+import toast from 'react-hot-toast';
 
 const Navbar = () => {
+    const { user, signOutUser } = useAuth();
+    const navigate = useNavigate();
+    
     // NavLink items with active state styling
     const links = <>
             <li><NavLink to="/" className={({ isActive }) => isActive ? "text-primary font-bold" : "text-white"}>Home</NavLink></li>
@@ -14,12 +19,18 @@ const Navbar = () => {
             <li><NavLink to="/contact" className={({ isActive }) => isActive ? "text-primary font-bold" : "text-white"}>Contact</NavLink></li>
     </>
 
+    const handleSignOut = () => {
+        signOutUser()
+            .then(() => {
+                toast.success("Signed out successfully");
+                navigate("/login")
+            })
+            .catch((error) => {
+                toast.error(error.message);
+            })
+    }
+
     return (
-        /* Parent Container: 
-           - 'fixed' makes it stay on top while scrolling.
-           - 'mt-4' gives the floating effect.
-           - 'px-4' ensures it doesn't touch screen edges on mobile.
-        */
         <div className="fixed top-0 left-0 w-full z-50 mt-4 px-4">
             <div className="max-w-7xl mx-auto h-full">
                 {/* Navbar Glass Box */}
@@ -50,25 +61,53 @@ const Navbar = () => {
                     </div>
 
                     <div className="navbar-end gap-3">
-                        {/* Mobile Login Icon */}
-                        <NavLink to="/login" className="sm:hidden text-white text-xl p-2">
-                            <FaSignInAlt />
-                        </NavLink>
+                        {user ? (
+                            /* User Present: Show Avatar Dropdown */
+                            <div className="dropdown dropdown-end">
+                                <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar border border-primary/50">
+                                    <div className="w-10 rounded-full">
+                                        <img 
+                                            alt="User Profile" 
+                                            src={user?.photoURL || "https://i.ibb.co.com/6JHm0vX/user-placeholder.png"} 
+                                        />
+                                    </div>
+                                </div>
+                                <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-1 w-52 p-4 shadow-2xl rounded-2xl border border-white/10 bg-black/90 backdrop-blur-xl text-white space-y-2">
+                                    <li><NavLink to="/dashboard" className="hover:text-primary transition-all">Dashboard</NavLink></li>
+                                    <li><NavLink to="/profile" className="hover:text-primary transition-all">Profile</NavLink></li>
+                                    <hr className="border-white/10" />
+                                    <li>
+                                        <button 
+                                            onClick={handleSignOut} 
+                                            className="text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all font-bold"
+                                        >
+                                            Sign Out
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        ) : (
+                            /* No User: Show Login/Signup */
+                            <>
+                                {/* Mobile Icons */}
+                                <NavLink to="/login" className="sm:hidden text-white text-xl p-2">
+                                    <FaSignInAlt />
+                                </NavLink>
+                                <NavLink to="/register" className="sm:hidden text-primary text-xl p-2">
+                                    <FaUserPlus />
+                                </NavLink>
 
-                        <NavLink to="/login" className="btn btn-ghost text-white rounded-full hover:text-primary transition font-medium hidden sm:flex">
-                            Log In
-                        </NavLink>
-
-                        {/* Mobile Register Icon */}
-                        <NavLink to="/register" className="sm:hidden text-primary text-xl p-2">
-                            <FaUserPlus />
-                        </NavLink>
-
-                        <NavLink to="/register" className="hidden sm:flex">
-                            <button className="bg-primary hover:bg-orange-600 btn rounded-full px-8 text-white border-none transition-all shadow-lg">
-                                Sign up
-                            </button>
-                        </NavLink>
+                                {/* Desktop Buttons */}
+                                <NavLink to="/login" className="btn btn-ghost text-white rounded-full hover:text-primary transition font-medium hidden sm:flex">
+                                    Log In
+                                </NavLink>
+                                <NavLink to="/register" className="hidden sm:flex">
+                                    <button className="bg-primary hover:bg-orange-600 btn rounded-full px-8 text-white border-none transition-all shadow-lg">
+                                        Sign up
+                                    </button>
+                                </NavLink>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>
