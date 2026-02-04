@@ -10,6 +10,8 @@ import Register from "../pages/Register"
 import Notfound from "../components/shared/errors/Notfound"
 import Loader from "../components/shared/Loader"
 import AuthLayout from "../layouts/AuthLayout"
+import PrivateRoutes from "../api/PrivateRoutes"
+import Dashboard from "../pages/dashboard/Dashboard"
 
 export const router = createBrowserRouter([
     {
@@ -23,6 +25,11 @@ export const router = createBrowserRouter([
             {path: "/tutors", Component: Tutors},
             {path: "/about", Component: About},
             {path: "/contact", Component: Contact},
+            {path: "/dashboard", 
+                element: <PrivateRoutes>
+                    <Dashboard></Dashboard>
+                </PrivateRoutes>
+            }
         ]
     },
     {

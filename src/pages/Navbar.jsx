@@ -17,6 +17,7 @@ const Navbar = () => {
             <li><NavLink to="/tutors" className={({ isActive }) => isActive ? "text-primary font-bold" : "text-white"}>Tutors</NavLink></li>
             <li><NavLink to="/about" className={({ isActive }) => isActive ? "text-primary font-bold" : "text-white"}>About</NavLink></li>
             <li><NavLink to="/contact" className={({ isActive }) => isActive ? "text-primary font-bold" : "text-white"}>Contact</NavLink></li>
+            {user && <li><NavLink to="/dashboard" className={({ isActive }) => isActive ? "text-primary font-bold" : "text-white"}>Dashboard</NavLink></li>}
     </>
 
     const handleSignOut = () => {
