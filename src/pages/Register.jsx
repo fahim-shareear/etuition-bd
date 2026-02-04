@@ -1,11 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import registeranimation from '../assets/register.json';
 import Lottie from 'lottie-react';
 import { useForm } from 'react-hook-form';
 import { motion, AnimatePresence } from 'framer-motion'; 
+import useAxios from '../hooks/useAxios';
+import { AuthContext } from '../providers/AuthContext';
+import toast from 'react-hot-toast';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const Register = () => {
-    // formState থেকে errors অবজেক্ট এবং watch ফাংশন বের করা হয়েছে
+    // AuthContext থেকে প্রয়োজনীয় ফাংশনগুলো নেওয়া হয়েছে
+    const { signInWithGoogle, createUserWithEmail, loading } = useContext(AuthContext);
+    const axiosSecure = useAxios();
+    
+    // রিডাইরেকশনের জন্য লজিক
+    const navigate = useNavigate();
+    const location = useLocation();
+    const from = location.state?.from?.pathname || "/";
+
     const { register, handleSubmit, reset, watch, formState: { errors } } = useForm();
     const [userType, setUserType] = useState('tutor');
 
@@ -14,37 +26,79 @@ const Register = () => {
         reset(); 
     };
 
-    const handleGoogleRegister = () => {
-        console.log("Google registration processing...");
+    // ১. গুগল রেজিস্ট্রেশন এবং রিডাইরেক্ট ফাংশন
+    const handleGoogleRegister = async () => {
+        const toastId = toast.loading("Processing Google Registration...");
+        try {
+            const result = await signInWithGoogle();
+            const user = result.user;
+
+            const userInfo = {
+                name: user.displayName,
+                email: user.email,
+                role: 'student', 
+                createdAt: new Date(),
+            };
+
+            // ডাটাবেজে ইউজার সেভ করা
+            const res = await axiosSecure.post('/users', userInfo);
+            
+            if (res.data.success) {
+                // JWT টোকেন এবং কুকি সেট করা
+                await axiosSecure.post('/jwt', { email: user.email });
+                toast.success("Welcome! Registration Successful.", { id: toastId });
+                
+                // ইউজারকে কাঙ্ক্ষিত পেজে অথবা হোমে পাঠানো
+                navigate(from, { replace: true });
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error(error.response?.data?.message || "Google Registration Failed", { id: toastId });
+        }
     };
     
-    const hadnleRegistration = (data) => {
-        console.log("after registration", data);
-        const commonData = {
-            name: data.name,
-            email: data.email,
-            phone: data.phone,
-            address: data.address,
-            gender: data.gender,
-            password: data.password,
-            role: userType,
-            createdAt: new Date(),
-        };
+    // ২. ইমেইল/পাসওয়ার্ড রেজিস্ট্রেশন এবং রিডাইরেক্ট ফাংশন
+    const hadnleRegistration = async (data) => {
+        const toastId = toast.loading("Creating your account...");
+        try {
+            // ফায়ারবেস দিয়ে ইউজার তৈরি
+            await createUserWithEmail(data.email, data.password);
+            
+            const commonData = {
+                name: data.name,
+                email: data.email,
+                phone: data.phone,
+                address: data.address,
+                gender: data.gender,
+                role: userType,
+                createdAt: new Date(),
+            };
 
-        if(userType === 'tutor'){ // বানান ঠিক করা হয়েছে 'tutor'
-            const tutorData ={
-                ...commonData,
-                occupation: data.occupation,
-                institution: data.institution,
-            };
-            console.log("Tutor Data:", tutorData);
-        } else {
-            const studentData = {
-                ...commonData,
-                institution: data.institution,
-                class: data.class,
-            };
-            console.log("Student Data:", studentData);
+            let finalData = { ...commonData };
+            if (userType === 'tutor') {
+                finalData.occupation = data.occupation;
+                finalData.institution = data.institution;
+            } else {
+                finalData.institution = data.institution;
+                finalData.class = data.class;
+            }
+
+            // ডাটাবেজে ইউজার ডেটা সেভ
+            const response = await axiosSecure.post('/users', finalData);
+
+            if (response.data.success) {
+                // টোকেন জেনারেট এবং কুকি সেট
+                await axiosSecure.post('/jwt', { email: data.email });
+                
+                toast.success(`Success! Registered as ${userType}`, { id: toastId });
+                reset();
+                
+                // রিডাইরেক্ট লজিক
+                navigate(from, { replace: true });
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error(error.response?.data?.message || error.message || "Registration Failed", { id: toastId });
         }
     }
 
@@ -127,7 +181,7 @@ const Register = () => {
                                         <div>
                                             <label className="label font-bold text-xs uppercase tracking-wide">Occupation <span className="text-red-500">*</span></label>
                                             <select className={`select select-bordered w-full ${errors.occupation ? 'border-red-500' : ''}`} {...register("occupation", {required: "Select occupation"})}>
-                                                <option disabled selected value="">Pick one</option>
+                                                <option disabled value="">Pick one</option>
                                                 <option value="teacher">Teacher</option>
                                                 <option value="student">Student</option>
                                             </select>
@@ -149,7 +203,7 @@ const Register = () => {
                                         <div>
                                             <label className="label font-bold text-xs uppercase tracking-wide">Class <span className="text-red-500">*</span></label>
                                             <select className={`select select-bordered w-full ${errors.class ? 'border-red-500' : ''}`} {...register("class", {required: "Select your class"})}>
-                                                <option disabled selected value="">Pick one</option>
+                                                <option disabled value="">Pick one</option>
                                                 <option value="9">Class 9</option>
                                                 <option value="10">Class 10</option>
                                                 <option value="11">H.S.C</option>
@@ -162,7 +216,7 @@ const Register = () => {
                                 <div>
                                     <label className="label font-bold text-xs uppercase tracking-wide">Gender <span className="text-red-500">*</span></label>
                                     <select className={`select select-bordered w-full ${errors.gender ? 'border-red-500' : ''}`} {...register("gender", {required: "Gender is required"})}>
-                                        <option disabled selected value="">Pick one</option>
+                                        <option disabled value="">Pick one</option>
                                         <option value="male">Male</option>
                                         <option value="female">Female</option>
                                     </select>
@@ -186,7 +240,13 @@ const Register = () => {
                                     {errors.repassword && <p className="text-red-500 text-[10px] mt-1 font-bold">{errors.repassword.message}</p>}
                                 </div>
 
-                                <button className="btn btn-primary mt-6 md:col-span-2 w-full uppercase font-black">Submit & Register</button>
+                                <button 
+                                    type="submit" 
+                                    disabled={loading}
+                                    className="btn btn-primary mt-6 md:col-span-2 w-full uppercase font-black"
+                                >
+                                    {loading ? "Processing..." : "Submit & Register"}
+                                </button>
                             </fieldset>
                         </form>
                     </motion.div>
