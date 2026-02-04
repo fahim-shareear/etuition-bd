@@ -9,6 +9,7 @@ import { NavLink, useLocation, useNavigate } from 'react-router';
 import { IoEye } from "react-icons/io5";
 import axios from 'axios';
 import { IoMdEyeOff } from "react-icons/io";
+import { updateProfile } from 'firebase/auth';
 
 const Register = () => {
     const { register, handleSubmit, reset, watch, formState: { errors } } = useForm();
@@ -29,11 +30,30 @@ const Register = () => {
         signInWithGoogle()
             .then((result) => {
                 console.log(result.user)
-                toast.success("Welcome! Registration Successful.", { id: toastId });
-                navigate(location?.state || "/");
+                const user = result.user;
+                const userInfo = {
+                    name: user?.displayName,
+                    email: user?.email,
+                    image: user?.photoURL,
+                    role: userType
+                }
+
+                axios.post('http://localhost:3000/users', userInfo)
+                    .then(() =>{
+                        toast.success("Welcome! Registration Successful.", { id: toastId });
+                        navigate(location?.state || "/");
+                    })
+                    .catch(err =>{
+                        console.log(err.message);
+                        toast.error(err.message)
+                        return
+                    });
+                
+                // navigate(location?.state || "/");
             })
             .catch((error) => {
                 toast.error(error.message, { id: toastId });
+                return
             });
     };
     
