@@ -4,7 +4,7 @@ import Lottie from 'lottie-react';
 import useAuth from '../hooks/useAuth';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { NavLink, useNavigate } from 'react-router';
+import { NavLink, useLocation, useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 import { IoEye } from "react-icons/io5";
 import { IoMdEyeOff } from "react-icons/io";
@@ -15,6 +15,7 @@ const Login = () => {
     const { register, handleSubmit, reset, formState: { errors } } = useForm();
     const navigate = useNavigate();
     const [userType, setUserType] = useState("tutor");
+    const location = useLocation();
 
     const hadnleLogin = (data) => {
         const toastId = toast.loading("Logging in...");
@@ -22,7 +23,7 @@ const Login = () => {
             .then((result) => {
                 console.log(result.user)
                 toast.success("Login Successful!", { id: toastId });
-                navigate('/', { replace: true });
+                navigate(location?.state || "/");
             })
             .catch((error) => {
                 toast.error(error.message || "Login failed.", { id: toastId });
@@ -37,7 +38,7 @@ const Login = () => {
             .then((result) => {
                 console.log(result.user)
                 toast.success("Google Login Successful!", { id: toastId });
-                navigate('/', { replace: true });
+                navigate(location?.state || "/");
             })
             .catch((error) => {
                 toast.error(error.message || "Google Login failed.", { id: toastId });
@@ -183,7 +184,7 @@ const Login = () => {
                             </fieldset>
                         </form>
                         <div>
-                            <p>Don't have and Account Please <NavLink to="/register"><span className="text-primary font-bold text-[15px]">Register</span></NavLink></p>
+                            <p>Don't have and Account Please <NavLink to="/register" state={location.state}><span className="text-primary font-bold text-[15px]">Register</span></NavLink></p>
                         </div>
                     </motion.div>
                 </AnimatePresence>

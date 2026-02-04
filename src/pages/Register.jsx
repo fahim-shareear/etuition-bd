@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { motion, AnimatePresence } from 'framer-motion'; 
 import useAuth from '../hooks/useAuth';
 import toast from "react-hot-toast";
-import { NavLink, useNavigate } from 'react-router';
+import { NavLink, useLocation, useNavigate } from 'react-router';
 import { IoEye } from "react-icons/io5";
 import axios from 'axios';
 import { IoMdEyeOff } from "react-icons/io";
@@ -17,6 +17,7 @@ const Register = () => {
     const [showPass, setShowPass] = useState(false);
     const [showRePass, setShowRePass] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
 
     const handleTypeSwitch = (type) => {
         setUserType(type);
@@ -29,7 +30,7 @@ const Register = () => {
             .then((result) => {
                 console.log(result.user)
                 toast.success("Welcome! Registration Successful.", { id: toastId });
-                navigate('/');
+                navigate(location?.state || "/");
             })
             .catch((error) => {
                 toast.error(error.message, { id: toastId });
@@ -54,6 +55,7 @@ const Register = () => {
                         updateUserProfile(userProfile)
                             .then(()=>{
                                 toast.success("User profile created and updated")
+                                navigate(location?.state || "/")
                             })
                             .catch(error=>{
                                 toast.error(error.message);
@@ -249,7 +251,7 @@ const Register = () => {
                                 <button type="submit" className="btn btn-primary mt-6 md:col-span-2 w-full uppercase font-black">Submit & Register</button>
                             </fieldset>
                             <div>
-                                <p>Don't have and Account Please <NavLink to="/login"><span className="text-primary font-bold text-[15px]">Log In</span></NavLink></p>
+                                <p>Don't have and Account Please <NavLink to="/login" state={location.state}><span className="text-primary font-bold text-[15px]">Log In</span></NavLink></p>
                             </div>
                         </form>
                     </motion.div>
