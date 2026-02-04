@@ -2,12 +2,25 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Lottie from 'lottie-react';
 import loginAnimation from '../assets/Login.json';
+import { useForm } from 'react-hook-form'; // useForm ইমপোর্ট করা হয়েছে
 
 const Login = () => {
-    const [userType, setUserType] = useState('tutor'); // 'tutor' or 'student'
+    // formState থেকে errors এবং watch বের করা হয়েছে
+    const { register, handleSubmit, reset, formState: { errors } } = useForm();
+    const [userType, setUserType] = useState('tutor');
+
+    const handleTypeSwitch = (type) => {
+        setUserType(type);
+        reset(); // সুইচ করলে ফর্ম ক্লিয়ার হবে
+    };
 
     const handleGoogleLogin = () => {
         console.log("Google Login Triggered");
+    };
+
+    const handleLoginSubmit = (data) => {
+        console.log(`Logging in as ${userType}:`, data);
+        // এখানে আপনার ব্যাকেন্ড বা অথেনটিকেশন লজিক বসবে
     };
 
     return (
@@ -36,29 +49,26 @@ const Login = () => {
                         <div className="w-12 h-1 bg-orange-500 mx-auto mt-1 rounded-full"></div>
                     </div>
 
-                    {/* --- FIXED ROLE TOGGLER --- */}
+                    {/* --- ROLE TOGGLER --- */}
                     <div className="w-full max-w-md mx-auto mb-8">
                         <div className="flex bg-slate-100 p-1.5 rounded-2xl relative shadow-inner w-full">
-                            {/* Sliding Active Background */}
                             <motion.div 
                                 animate={{ x: userType === 'tutor' ? 0 : '100%' }}
                                 transition={{ type: "spring", stiffness: 350, damping: 30 }}
                                 className="absolute top-1.5 left-1.5 w-[calc(50%-12px)] h-[calc(100%-12px)] bg-orange-600 rounded-xl shadow-lg"
                             />
                             
-                            {/* Tutor Button */}
                             <button 
                                 type="button"
-                                onClick={() => setUserType('tutor')}
+                                onClick={() => handleTypeSwitch('tutor')}
                                 className={`relative flex-1 py-3 z-10 font-black text-[11px] uppercase tracking-widest transition-colors duration-300 ${userType === 'tutor' ? 'text-white' : 'text-slate-400'}`}
                             >
                                 Tutor
                             </button>
                             
-                            {/* Student Button */}
                             <button 
                                 type="button"
-                                onClick={() => setUserType('student')}
+                                onClick={() => handleTypeSwitch('student')}
                                 className={`relative flex-1 py-3 z-10 font-black text-[11px] uppercase tracking-widest transition-colors duration-300 ${userType === 'student' ? 'text-white' : 'text-slate-400'}`}
                             >
                                 Student
@@ -67,32 +77,16 @@ const Login = () => {
                     </div>
 
                     <AnimatePresence mode="wait">
-                        {userType === 'tutor' ? (
-                            <motion.form 
-                                key="tutor-login"
-                                initial={{ x: 20, opacity: 0 }}
-                                animate={{ x: 0, opacity: 1 }}
-                                exit={{ x: -20, opacity: 0 }}
-                                className="space-y-4 max-w-md mx-auto w-full"
-                            >
-                                <InputField label="Email Address" type="email" placeholder="tutor@example.com" required />
-                                <div className="space-y-1">
-                                    <InputField label="Password" type="password" placeholder="••••••••" required />
-                                    <div className="text-right">
-                                        <button type="button" className="text-[10px] font-bold text-orange-600 cursor-pointer hover:underline uppercase tracking-wider">Forgot Password?</button>
-                                    </div>
-                                </div>
-                                <SubmitButton text="Login as Tutor" color="bg-orange-600" />
-                            </motion.form>
-                        ) : (
-                            <motion.form 
-                                key="student-login"
-                                initial={{ x: 20, opacity: 0 }}
-                                animate={{ x: 0, opacity: 1 }}
-                                exit={{ x: -20, opacity: 0 }}
-                                className="space-y-4 max-w-md mx-auto w-full"
-                            >
-                                {/* Google Login Button */}
+                        <motion.form 
+                            key={userType}
+                            initial={{ x: 20, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            exit={{ x: -20, opacity: 0 }}
+                            onSubmit={handleSubmit(handleLoginSubmit)}
+                            className="space-y-4 max-w-md mx-auto w-full"
+                        >
+                            {/* স্টুডেন্টদের জন্য গুগল লগইন */}
+                            {userType === 'student' && (
                                 <div className="mb-2">
                                     <button 
                                         type="button"
@@ -109,13 +103,38 @@ const Login = () => {
                                         <div className="grow border-t border-slate-100"></div>
                                     </div>
                                 </div>
+                            )}
 
-                                <InputField label="Email Address" type="email" placeholder="student@example.com" required />
-                                <InputField label="Password" type="password" placeholder="••••••••" required />
-                                
-                                <SubmitButton text="Login as Student" color="bg-slate-900" />
-                            </motion.form>
-                        )}
+                            {/* ইমেইল ফিল্ড */}
+                            <InputField 
+                                label="Email Address" 
+                                type="email" 
+                                placeholder="example@mail.com" 
+                                register={register("email", { required: "Email is required" })}
+                                error={errors.email}
+                                required 
+                            />
+
+                            {/* পাসওয়ার্ড ফিল্ড */}
+                            <div className="space-y-1">
+                                <InputField 
+                                    label="Password" 
+                                    type="password" 
+                                    placeholder="••••••••" 
+                                    register={register("password", { required: "Password is required", minLength: { value: 6, message: "Min 6 characters" } })}
+                                    error={errors.password}
+                                    required 
+                                />
+                                <div className="text-right">
+                                    <button type="button" className="text-[10px] font-bold text-orange-600 cursor-pointer hover:underline uppercase tracking-wider">Forgot Password?</button>
+                                </div>
+                            </div>
+
+                            <SubmitButton 
+                                text={`Login as ${userType}`} 
+                                color={userType === 'tutor' ? 'bg-orange-600' : 'bg-slate-900'} 
+                            />
+                        </motion.form>
                     </AnimatePresence>
                 </div>
             </div>
@@ -123,23 +142,25 @@ const Login = () => {
     );
 };
 
-// --- Reusable Internal Components ---
+// --- Reusable Internal Components (Updated for Hook Form) ---
 
-const InputField = ({ label, required, ...props }) => (
+const InputField = ({ label, required, register, error, ...props }) => (
     <div className="flex flex-col gap-1.5">
         <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">
             {label} {required && <span className="text-orange-500">*</span>}
         </label>
         <input 
             {...props}
-            className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-xl focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/5 transition-all text-sm font-medium"
+            {...register}
+            className={`w-full px-5 py-3.5 bg-slate-50 border ${error ? 'border-red-500' : 'border-slate-100'} rounded-xl focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/5 transition-all text-sm font-medium`}
         />
+        {error && <p className="text-red-500 text-[10px] mt-1 font-bold ml-1">{error.message}</p>}
     </div>
 );
 
 const SubmitButton = ({ text, color }) => (
     <div className="pt-2">
-        <button className={`w-full py-4 ${color} text-white font-black text-[11px] uppercase tracking-[0.2em] rounded-xl hover:opacity-95 transition-all shadow-xl shadow-orange-500/10 active:scale-95`}>
+        <button type="submit" className={`w-full py-4 ${color} text-white font-black text-[11px] uppercase tracking-[0.2em] rounded-xl hover:opacity-95 transition-all shadow-xl shadow-orange-500/10 active:scale-95`}>
             {text}
         </button>
         <div className="text-center mt-6">
