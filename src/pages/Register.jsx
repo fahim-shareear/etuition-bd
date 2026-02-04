@@ -54,8 +54,31 @@ const Register = () => {
                         }
                         updateUserProfile(userProfile)
                             .then(()=>{
-                                toast.success("User profile created and updated")
-                                navigate(location?.state || "/")
+                                const userInfo ={
+                                    name: data.name,
+                                    email: data.email,
+                                    image: res.data.data.url,
+                                    role: userType,
+                                    phone: data.phone,
+                                    address: data.address,
+                                    gender: data.gender,
+                                    institution: data.institution,
+
+                                    ...(userType === 'tutor' ? {occupation: data.occupation} : {class: data.class}),
+                                    createdAt: new Date().toISOString()
+                                };
+                                axios.post('http://localhost:3000/users', userInfo)
+                                    .then(data =>{
+                                        if(data.data.insertedId){
+                                            toast.success(`Registered as ${userType}`)
+                                            navigate(location?.state || "/")
+                                        }
+                                    })
+                                    .catch(err=>{
+                                        toast.error(err.message);
+                                        return;
+                                    })
+                                // toast.success("User profile created and updated")
                             })
                             .catch(error=>{
                                 toast.error(error.message);
