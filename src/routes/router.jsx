@@ -19,6 +19,7 @@ import PostTuitions from "../pages/dashboard/PostTuitions";
 import MyPosts from "../pages/dashboard/MyPosts";
 import Manageusers from "../pages/dashboard/Manageusers";
 import AppliedTutors from "../pages/dashboard/AppiedTutors";
+import Payment from "../pages/dashboard/Payment";
 
 export const router = createBrowserRouter([
     {
@@ -58,7 +59,8 @@ export const router = createBrowserRouter([
             
             // Admin Routes
             { path: "manage-users", element: <Manageusers /> },
-            {path: "applied-tutors", element: <AppliedTutors/>}
+            {path: "applied-tutors", element: <AppliedTutors/>},
+            { path: "payment", element: <Payment /> }
             
             // Tutor Routes (এভাবে এড করতে থাকবেন)
             // { path: "find-jobs", element: <FindJobs /> },

@@ -36,6 +36,7 @@ const DashboardLayout = () => {
         <>
             <li><NavLink to="/dashboard/post-tuition" className={({isActive}) => isActive ? "text-orange-400 font-bold" : ""}> <FaPlusCircle /> Post Tuition</NavLink></li>
             <li><NavLink to="/dashboard/my-posts" className={({isActive}) => isActive ? "text-orange-400 font-bold" : ""}> <FaBook /> My Tuition Posts</NavLink></li>
+            <li><NavLink to="/dashboard/applied-tutors"> <FaUsers /> Applied Tutors</NavLink></li>
         </>
     );
 
