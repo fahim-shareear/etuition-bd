@@ -33,7 +33,7 @@ const AuthLayout = () => {
 
             {/* Main Content Area */}
             <main className="grow flex items-center justify-center p-2 lg:p-6 overflow-hidden">
-                <div className="w-full max-w-7xl mx-auto flex justify-center lg:justify-end h-full items-center">
+                <div className="w-full max-w-7xl mx-auto flex justify-center h-full items-center">
                     
                     {/* Internal Scroll Container for Forms */}
                     <div className="w-full lg:w-auto max-h-[85vh] overflow-y-auto no-scrollbar rounded-[2.5rem]">
