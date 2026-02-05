@@ -1,76 +1,55 @@
-import React from 'react';
-import { Outlet, NavLink, Link } from 'react-router';
-import { FaHome, FaUser, FaBook, FaUsers, FaPlusCircle, FaHistory } from 'react-icons/fa';
-// import useRole from '../hooks/useRole';
-// import Logo from '../components/shared/Logo';
-import useRole from '../../hooks/useRole';
-import Logo from '../../components/shared/Logo';
+import { useEffect, useState } from "react";
+import { NavLink, Outlet } from "react-router";
+import useAuth from "../../hooks/useAuth";
+import axios from "axios";
+import { FaUser, FaUsers, FaBook, FaPlusCircle, FaHistory } from "react-icons/fa";
 
 const DashboardLayout = () => {
-    const [role, isRoleLoading] = useRole();
+    const { user } = useAuth();
+    const [role, setRole] = useState(null);
 
-    if (isRoleLoading) {
-        return <div className="h-screen flex justify-center items-center bg-orange-600">
-            <span className="loading loading-spinner loading-lg text-white"></span>
-        </div>;
-    }
-
-    // Role-specific menus
-    const adminMenu = (
-        <>
-            <li><NavLink to="/dashboard/manage-users" className={({isActive}) => isActive ? "text-orange-400 font-bold" : ""}> <FaUsers /> Manage Users</NavLink></li>
-            <li><NavLink to="/dashboard/approve-tuition" className={({isActive}) => isActive ? "text-orange-400 font-bold" : ""}> <FaBook /> Approve Tuitions</NavLink></li>
-            <li><NavLink to="/dashboard/revenue" className={({isActive}) => isActive ? "text-orange-400 font-bold" : ""}> <FaHistory /> Revenue</NavLink></li>
-        </>
-    );
-
-    const tutorMenu = (
-        <>
-            <li><NavLink to="/dashboard/find-jobs" className={({isActive}) => isActive ? "text-orange-400 font-bold" : ""}> <FaPlusCircle /> Find Tuitions</NavLink></li>
-            <li><NavLink to="/dashboard/my-applications" className={({isActive}) => isActive ? "text-orange-400 font-bold" : ""}> <FaHistory /> Applied Jobs</NavLink></li>
-            <li><NavLink to="/dashboard/payments" className={({isActive}) => isActive ? "text-orange-400 font-bold" : ""}> <FaHistory /> Payments</NavLink></li>
-        </>
-    );
-
-    const studentMenu = (
-        <>
-            <li><NavLink to="/dashboard/post-tuition" className={({isActive}) => isActive ? "text-orange-400 font-bold" : ""}> <FaPlusCircle /> Post Tuition</NavLink></li>
-            <li><NavLink to="/dashboard/my-posts" className={({isActive}) => isActive ? "text-orange-400 font-bold" : ""}> <FaBook /> My Tuition Posts</NavLink></li>
-            <li><NavLink to="/dashboard/applied-tutors"> <FaUsers /> Applied Tutors</NavLink></li>
-        </>
-    );
+    useEffect(() => {
+        if (user?.email) {
+            axios.get(`http://localhost:3000/users/role/${user.email}`)
+                .then(res => setRole(res.data.role));
+        }
+    }, [user]);
 
     return (
-        <div className="h-screen w-full bg-orange-600 flex flex-col overflow-hidden">
-            {/* Top Navbar */}
-            <header className="py-4 px-6 lg:px-12 flex justify-between items-center bg-white/10 backdrop-blur-md border-b border-white/20">
-                <Link to="/" className="scale-90 lg:scale-100"><Logo /></Link>
-                <Link to="/" className="btn btn-sm btn-ghost text-white border border-white/20 hover:bg-white hover:text-orange-600 uppercase font-bold tracking-widest"><FaHome /> Home</Link>
-            </header>
+        <div className="flex min-h-screen bg-slate-50">
+            {/* Sidebar */}
+            <div className="w-64 bg-slate-900 text-white p-6">
+                <h1 className="text-2xl font-bold text-orange-500 mb-10 italic">ETuition BD</h1>
+                
+                <ul className="space-y-4">
+                    {/* Admin Menu */}
+                    {role === 'admin' && (
+                        <>
+                            <p className="text-xs text-slate-500 uppercase font-bold">Admin Menu</p>
+                            <li><NavLink to="/dashboard/manage-tuitions" className="flex items-center gap-2 hover:text-orange-400"><FaBook /> Manage Tuitions</NavLink></li>
+                            <li><NavLink to="/dashboard/manage-users" className="flex items-center gap-2 hover:text-orange-400"><FaUsers /> Manage Users</NavLink></li>
+                            <li><NavLink to="/dashboard/analytics" className="flex items-center gap-2 hover:text-orange-400"><FaUsers /> Analytics</NavLink></li>
+                        </>
+                    )}
 
-            <div className="flex grow overflow-hidden">
-                {/* Sidebar */}
-                <aside className="w-64 bg-[#0f172a] text-white p-6 flex flex-col shadow-2xl">
-                    <h2 className="text-xl font-black mb-10 text-orange-500 uppercase italic">Dashboard</h2>
-                    
-                    <ul className="menu menu-md p-0 space-y-3 grow overflow-y-auto">
-                        <li><NavLink to="/dashboard/profile" className={({isActive}) => isActive ? "text-orange-400 font-bold" : ""}> <FaUser /> Profile</NavLink></li>
-                        
-                        <div className="divider opacity-20 my-2"></div>
-                        
-                        {/* --- DYNAMIC MENU BASED ON ROLE --- */}
-                        {role === 'admin' && adminMenu}
-                        {role === 'tutor' && tutorMenu}
-                        {role === 'student' && studentMenu}
-                    </ul>
-                </aside>
+                    {/* Student Menu */}
+                    {role === 'student' && (
+                        <>
+                            <p className="text-xs text-slate-500 uppercase font-bold">Student Menu</p>
+                            <li><NavLink to="/dashboard/post-tuition" className="flex items-center gap-2 hover:text-orange-400"><FaPlusCircle /> Post Tuition</NavLink></li>
+                            <li><NavLink to="/dashboard/my-posts" className="flex items-center gap-2 hover:text-orange-400"><FaBook /> My Posts</NavLink></li>
+                            <li><NavLink to="/dashboard/applied-tutors" className="flex items-center gap-2 hover:text-orange-400"><FaUsers /> Applied Tutors</NavLink></li>
+                        </>
+                    )}
 
-                {/* Main Content Area */}
-                <main className="flex-1 overflow-y-auto p-6 lg:p-10 bg-slate-100">
-                    <div className="max-w-6xl mx-auto">
-                        <Outlet />
-                    </div>
-                </main>
+                    <div className="divider bg-slate-700 h-px my-6"></div>
+                    <li><NavLink to="/dashboard/profile" className="flex items-center gap-2 hover:text-orange-400"><FaUser /> My Profile</NavLink></li>
+                </ul>
+            </div>
+
+            {/* Content Area */}
+            <div className="flex-1 p-10">
+                <Outlet />
             </div>
         </div>
     );
