@@ -9,7 +9,6 @@ import { NavLink, useLocation, useNavigate } from 'react-router';
 import { IoEye } from "react-icons/io5";
 import axios from 'axios';
 import { IoMdEyeOff } from "react-icons/io";
-import { updateProfile } from 'firebase/auth';
 
 const Register = () => {
     const { register, handleSubmit, reset, watch, formState: { errors } } = useForm();
