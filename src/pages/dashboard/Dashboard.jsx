@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { NavLink, Outlet } from "react-router";
+import { Link, NavLink, Outlet } from "react-router";
 import useAuth from "../../hooks/useAuth";
 import axios from "axios";
 import { FaUser, FaUsers, FaBook, FaPlusCircle, FaHistory } from "react-icons/fa";
@@ -20,6 +20,9 @@ const DashboardLayout = () => {
             {/* Sidebar */}
             <div className="w-64 bg-slate-900 text-white p-6">
                 <h1 className="text-2xl font-bold text-orange-500 mb-10 italic">ETuition BD</h1>
+                <div>
+                    <Link to="/">Home</Link>
+                </div>
                 
                 <ul className="space-y-4">
                     {/* Admin Menu */}

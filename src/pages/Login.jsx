@@ -18,8 +18,8 @@ const Login = () => {
     const location = useLocation();
 
     // অ্যাডমিন ক্রেডেনশিয়াল
-    const adminEmail = "admin@etuition.com";
-    const adminPass = "admin1234";
+    const adminEmail = "admin@etuitionbd.com";
+    const adminPass = "Fg123456";
 
     const hadnleLogin = (data) => {
         const toastId = toast.loading("Logging in...");
