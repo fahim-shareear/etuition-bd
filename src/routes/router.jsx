@@ -25,6 +25,8 @@ import AdminAnalytics from "../pages/dashboard/AdminAnalytics";
 import MyApplications from "../pages/dashboard/MyApplications";
 import OngoingTuitions from "../pages/dashboard/OngoingTuitions";
 import RevenueHistory from "../pages/dashboard/RevenueHistory";
+import TuitionsDetails from "../components/shared/TuitionsDetails";
+import TutorsDetails from "../components/shared/TutorsDetails";
 
 export const router = createBrowserRouter([
     {
@@ -38,6 +40,10 @@ export const router = createBrowserRouter([
             { path: "tutors", Component: Tutors },
             { path: "about", Component: About },
             { path: "contact", Component: Contact },
+            {path: "tuition/:id", // :id যোগ করা হয়েছে যাতে ডাইনামিক ইউআরএল কাজ করে
+                Component: TuitionsDetails},
+            {path: "/tutor-details/:id", // এখানে :id হলো ডায়নামিক প্যারামিটার
+                element: <TutorsDetails />}
         ]
     },
     {

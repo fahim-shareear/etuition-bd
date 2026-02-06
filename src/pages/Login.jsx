@@ -10,16 +10,34 @@ import { IoEye } from "react-icons/io5";
 import { IoMdEyeOff } from "react-icons/io";
 
 const Login = () => {
-    const { signInWithEmail, signInWithGoogle } = useAuth();
+    const { signInWithEmail, signInWithGoogle, resetPassword } = useAuth();
     const [eye, setEye] = useState(false);
     const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm();
     const navigate = useNavigate();
     const [userType, setUserType] = useState("tutor"); 
     const location = useLocation();
+    const [forgotEmail, setForgotEmail] = useState(""); // Modal এর ইনপুট হ্যান্ডেল করার জন্য
 
-    // অ্যাডমিন ক্রেডেনশিয়াল
     const adminEmail = "admin@etuitionbd.com";
     const adminPass = "Fg123456";
+
+    const handleForgotPassword = (e) => {
+        e.preventDefault();
+        if (!forgotEmail) {
+            return toast.error("Please enter your email address");
+        }
+        
+        const toastId = toast.loading("Sending reset email...");
+        resetPassword(forgotEmail)
+            .then(() => {
+                toast.success("Password Reset Mail Sent", { id: toastId });
+                document.getElementById('forgot_password_modal').close();
+                setForgotEmail("");
+            })
+            .catch((error) => {
+                toast.error(error.message, { id: toastId });
+            })
+    }
 
     const hadnleLogin = (data) => {
         const toastId = toast.loading("Logging in...");
@@ -28,8 +46,6 @@ const Login = () => {
             .then((result) => {
                 toast.success("Login Successful!", { id: toastId });
                 
-                // ড্যাশবোর্ড রিডাইরেক্ট ফিক্স:
-                // সরাসরি ড্যাশবোর্ডে পাঠাতে /dashboard ব্যবহার করুন
                 if (userType === 'admin' || data.email === adminEmail) {
                     navigate("/dashboard/manage-tuitions");
                 } else {
@@ -58,7 +74,6 @@ const Login = () => {
         setUserType(type);
         reset();
 
-        // অ্যাডমিন সিলেক্ট করলে ডাটা ফিল হবে
         if (type === 'admin') {
             setValue("email", adminEmail);
             setValue("password", adminPass);
@@ -80,7 +95,6 @@ const Login = () => {
 
             <div className="md:w-1/2 w-full">
                 
-                {/* Role Switcher */}
                 <div className="flex bg-slate-100 p-1 rounded-xl mb-6 relative w-full shadow-inner overflow-hidden">
                     <motion.div 
                         animate={{ 
@@ -139,12 +153,25 @@ const Login = () => {
                                             {eye ? <IoMdEyeOff /> : <IoEye />}
                                         </button>
                                     </div>
+                                    {/* Forgot Password Button */}
+                                    {userType !== 'admin' && (
+                                        <div className="mt-1 text-right">
+                                            <button 
+                                                type="button" 
+                                                onClick={() => document.getElementById('forgot_password_modal').showModal()}
+                                                className="text-[10px] font-bold text-primary uppercase hover:underline"
+                                            >
+                                                Forgot Password?
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
 
-                                <button type="submit" className="btn btn-primary mt-4 w-full uppercase font-black">
+                                <button type="submit" className="btn btn-primary mt-2 w-full uppercase font-black">
                                     {userType === 'admin' ? 'Enter Admin Panel' : 'Login'}
                                 </button>
                             </fieldset>
+                            
                         </form>
 
                         {userType !== 'admin' && (
@@ -155,6 +182,44 @@ const Login = () => {
                     </motion.div>
                 </AnimatePresence>
             </div>
+
+            {/* Forgot Password Modal */}
+            <dialog id="forgot_password_modal" className="modal modal-bottom sm:modal-middle">
+                <div className="modal-box bg-white rounded-2xl">
+                    <h3 className="font-black text-xl text-primary uppercase italic">Reset Password</h3>
+                    <p className="py-4 text-slate-500 text-sm">Enter your account email address and we'll send you a link to reset your password.</p>
+                    
+                    <div className="form-control">
+                        <label className="label">
+                            <span className="label-text font-bold text-xs uppercase">Your Email</span>
+                        </label>
+                        <input 
+                            type="email" 
+                            placeholder="email@example.com" 
+                            className="input input-bordered w-full" 
+                            value={forgotEmail}
+                            onChange={(e) => setForgotEmail(e.target.value)}
+                            required
+                        />
+                    </div>
+
+                    <div className="modal-action">
+                        <form method="dialog" className="flex gap-2">
+                            <button className="btn btn-ghost uppercase font-bold text-xs">Cancel</button>
+                            <button 
+                                onClick={handleForgotPassword}
+                                className="btn btn-primary uppercase font-black text-xs"
+                            >
+                                Send Reset Link
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <form method="dialog" className="modal-backdrop">
+                    <button>close</button>
+                </form>
+            </dialog>
+
         </div>
     );
 };
