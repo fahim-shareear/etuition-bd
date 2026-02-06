@@ -22,6 +22,9 @@ import AppliedTutors from "../pages/dashboard/AppiedTutors";
 import Payment from "../pages/dashboard/Payment";
 import ManageTuitions from "../pages/dashboard/ManageTuitions";
 import AdminAnalytics from "../pages/dashboard/AdminAnalytics";
+import MyApplications from "../pages/dashboard/MyApplications";
+import OngoingTuitions from "../pages/dashboard/OngoingTuitions";
+import RevenueHistory from "../pages/dashboard/RevenueHistory";
 
 export const router = createBrowserRouter([
     {
@@ -64,7 +67,11 @@ export const router = createBrowserRouter([
             {path: "applied-tutors", element: <AppliedTutors/>},
             { path: "payment", element: <Payment /> },
             { path: "manage-tuitions", element: <ManageTuitions /> },
-            { path: "analytics", element: <AdminAnalytics /> }
+            { path: "analytics", element: <AdminAnalytics /> },
+            // Router এ চাইল্ড হিসেবে এই পাথগুলো থাকতে হবে:
+            { path: "my-applications", element: <MyApplications /> },
+            { path: "ongoing-tuitions", element: <OngoingTuitions /> },
+            { path: "revenue", element: <RevenueHistory /> },
             
             // Tutor Routes (এভাবে এড করতে থাকবেন)
             // { path: "find-jobs", element: <FindJobs /> },
