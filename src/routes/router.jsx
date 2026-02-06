@@ -27,6 +27,7 @@ import OngoingTuitions from "../pages/dashboard/OngoingTuitions";
 import RevenueHistory from "../pages/dashboard/RevenueHistory";
 import TuitionsDetails from "../components/shared/TuitionsDetails";
 import TutorsDetails from "../components/shared/TutorsDetails";
+import HiringRequests from "../pages/dashboard/HiringRequests";
 
 export const router = createBrowserRouter([
     {
@@ -55,32 +56,33 @@ export const router = createBrowserRouter([
             { path: "register", Component: Register },
         ]
     },
-    {
-        // ড্যাশবোর্ডের জন্য সম্পূর্ণ আলাদা প্রফেশনাল লেআউট
-        path: "dashboard",
-        element: <PrivateRoutes><Dashboard/></PrivateRoutes>,
-        children: [
-            // সবার জন্য কমন প্রোফাইল
-            { index: true, element: <Profile /> }, 
-            { path: "profile", element: <Profile /> },
-            
-            // Student Routes
-            { path: "post-tuition", element: <PostTuitions /> },
-            { path: "my-posts", element: <MyPosts /> },
-            
-            // Admin Routes
-            { path: "manage-users", element: <Manageusers /> },
-            {path: "applied-tutors", element: <AppliedTutors/>},
-            { path: "payment", element: <Payment /> },
-            { path: "manage-tuitions", element: <ManageTuitions /> },
-            { path: "analytics", element: <AdminAnalytics /> },
-            // Router এ চাইল্ড হিসেবে এই পাথগুলো থাকতে হবে:
-            { path: "my-applications", element: <MyApplications /> },
-            { path: "ongoing-tuitions", element: <OngoingTuitions /> },
-            { path: "revenue", element: <RevenueHistory /> },
-            
-            // Tutor Routes (এভাবে এড করতে থাকবেন)
-            // { path: "find-jobs", element: <FindJobs /> },
-        ]
-    }
+// ... অন্যান্য ইমপোর্ট ঠিক থাকবে
+
+{
+    path: "dashboard",
+    element: <PrivateRoutes><Dashboard/></PrivateRoutes>,
+    children: [
+        { index: true, element: <Profile /> }, 
+        { path: "profile", element: <Profile /> },
+        
+        // Student Routes
+        { path: "post-tuition", element: <PostTuitions /> },
+        { path: "my-posts", element: <MyPosts /> },
+        { path: "applied-tutors", element: <AppliedTutors/>},
+        
+        // ফিক্সড পেমেন্ট রাউট: আইডি এবং ডাইনামিক প্যারামিটার সাপোর্ট করার জন্য
+        { path: "payment/:id", element: <Payment /> }, 
+
+        // Admin Routes
+        { path: "manage-users", element: <Manageusers /> },
+        { path: "manage-tuitions", element: <ManageTuitions /> },
+        { path: "analytics", element: <AdminAnalytics /> },
+
+        // Tutor Routes
+        { path: "my-applications", element: <MyApplications /> },
+        { path: "ongoing-tuitions", element: <OngoingTuitions /> },
+        { path: "revenue", element: <RevenueHistory /> },
+        { path: "hiringrequest", element: <HiringRequests/>}
+    ]
+}
 ]);

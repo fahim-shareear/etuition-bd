@@ -27,15 +27,43 @@ const TutorsDetails = () => {
             });
     }, [id]);
 
-    const handleHireRequest = () => {
-        if (!user) {
-            toast.error("Please login to hire a tutor!");
-            return navigate("/login", { state: `/tutor-details/${id}` });
-        }
-        
-        // এখানে আপনি চাইলে একটি বুকিং ফর্ম বা ডাইরেক্ট কনফার্মেশন মোডাল দেখাতে পারেন
-        toast.success(`Request sent to ${tutor.name}. They will contact you soon!`);
+const handleHireRequest = async () => {
+    if (!user) {
+        toast.error("Please login to hire a tutor!");
+        return navigate("/login", { state: `/tutor-details/${id}` });
+    }
+
+    if (user?.email === tutor?.email) {
+        return toast.error("You cannot hire yourself!");
+    }
+
+    const applicationData = {
+        tutorId: tutor._id,
+        tutorName: tutor.name,
+        tutorEmail: tutor.email,
+        studentName: user.displayName,
+        studentEmail: user.email,
+        studentPhoto: user.photoURL,
+        salary: tutor.expectedSalary || "Negotiable",
+        status: "Pending",
+        appliedDate: new Date().toISOString()
     };
+
+    const toastId = toast.loading("Sending application..."); // ইউজারকে ওয়েট করতে বলা
+
+    try {
+        const res = await axios.post('http://localhost:3000/applications', applicationData);
+        
+        if (res.data.insertedId) {
+            toast.success(`Application sent to ${tutor.name}!`, { id: toastId });
+        } 
+    } catch (error) {
+        // যদি ব্যাক-এন্ড থেকে 400 এরর (Already Applied) আসে
+        const message = error.response?.data?.message || "Failed to send application";
+        toast.error(message, { id: toastId });
+        console.error("Apply Error:", error);
+    }
+};
 
     if (loading) return <div className="min-h-screen flex justify-center items-center"><span className="loading loading-spinner loading-lg text-orange-600"></span></div>;
 

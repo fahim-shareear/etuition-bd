@@ -12,7 +12,8 @@ const RevenueHistory = () => {
         if (user?.email) {
             axios.get(`http://localhost:3000/tutor-revenue/${user?.email}`)
                 .then(res => {
-                    setPayments(res.data);
+                    // ফিক্স: ব্যাক-এন্ড থেকে আসা অবজেক্টের ভেতর থেকে পেমেন্ট অ্যারেটি নেওয়া হয়েছে
+                    setPayments(res.data.payments || []);
                     setLoading(false);
                 })
                 .catch(err => {
@@ -22,8 +23,10 @@ const RevenueHistory = () => {
         }
     }, [user]);
 
-    // মোট আয় ক্যালকুলেশন
-    const totalEarnings = payments.reduce((sum, payment) => sum + parseFloat(payment.salary || 0), 0);
+    // মোট আয় ক্যালকুলেশন (ফিক্স: payments অ্যারে কি না তা নিশ্চিত করা হয়েছে)
+    const totalEarnings = Array.isArray(payments) 
+        ? payments.reduce((sum, payment) => sum + parseFloat(payment.salary || 0), 0) 
+        : 0;
 
     if (loading) return <div className="text-center p-20"><span className="loading loading-spinner loading-lg text-primary"></span></div>;
 

@@ -1,58 +1,153 @@
 import React, { useEffect, useState } from 'react';
-import useAuth from '../../hooks/useAuth';
 import axios from 'axios';
-import { useNavigate } from 'react-router';
-import toast from 'react-hot-toast';
+import useAuth from '../../hooks/useAuth';
+import { Link } from 'react-router'; 
+import { FaCreditCard, FaCheckCircle, FaClock, FaExclamationTriangle } from 'react-icons/fa';
 
 const AppliedTutors = () => {
     const { user } = useAuth();
     const [applications, setApplications] = useState([]);
-    const navigate = useNavigate();
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (user?.email) {
-            axios.get(`http://localhost:3000/my-applications/${user.email}`)
-                .then(res => setApplications(res.data));
+            axios.get(`http://localhost:3000/hiring-requests-by-student/${user.email}`)
+                .then(res => {
+                    setApplications(res.data);
+                    setLoading(false);
+                })
+                .catch(err => {
+                    console.error("Fetch Error:", err);
+                    setLoading(false);
+                });
         }
     }, [user]);
 
-    // একসেপ্ট করলে পেমেন্ট পেজে রিডাইরেক্ট হবে
-    const handleAccept = (app) => {
-        // এখানে পেমেন্ট করার জন্য প্রয়োজনীয় ডাটা নিয়ে পেমেন্ট পেজে পাঠাতে হবে
-        navigate('/dashboard/payment', { state: { appId: app._id, salary: app.expectedSalary, tutorEmail: app.tutorEmail } });
-    };
-
-    const handleReject = async (id) => {
-        const res = await axios.delete(`http://localhost:3000/applications/${id}`);
-        if (res.data.deletedCount > 0) {
-            toast.success("Application Rejected");
-            setApplications(applications.filter(a => a._id !== id));
-        }
-    };
+    if (loading) return (
+        <div className="flex justify-center items-center min-h-100">
+            <span className="loading loading-spinner loading-lg text-orange-600"></span>
+        </div>
+    );
 
     return (
-        <div className="bg-white p-6 rounded-2xl shadow">
-            <h2 className="text-2xl font-bold mb-6 text-orange-600 uppercase">Tutor Applications</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {applications.map(app => (
-                    <div key={app._id} className="card bg-base-100 shadow-xl border border-slate-100 p-4">
-                        <div className="flex items-center gap-4 mb-4">
-                            <img src={app.tutorImage} className="w-16 h-16 rounded-full object-cover border-2 border-orange-500" alt="" />
-                            <div>
-                                <h3 className="font-bold text-lg">{app.tutorName}</h3>
-                                <p className="text-sm text-slate-500">{app.qualification}</p>
-                            </div>
-                        </div>
-                        <p className="text-sm mb-2"><strong>Experience:</strong> {app.experience} years</p>
-                        <p className="text-sm mb-4 font-bold text-green-600">Expected: {app.expectedSalary} BDT</p>
-                        
-                        <div className="flex gap-2">
-                            <button onClick={() => handleAccept(app)} className="btn btn-sm btn-success text-white grow">Accept & Pay</button>
-                            <button onClick={() => handleReject(app._id)} className="btn btn-sm btn-outline btn-error grow">Reject</button>
-                        </div>
-                    </div>
-                ))}
+        <div className="p-4 lg:p-8 max-w-7xl mx-auto">
+            <header className="mb-10">
+                <h2 className="text-3xl font-black text-slate-800 uppercase italic tracking-tight">
+                    Applied Tutors
+                </h2>
+                <p className="text-slate-500 font-medium mt-1">
+                    Manage your applications and complete payments for approved tutors.
+                </p>
+            </header>
+
+            <div className="bg-white rounded-3xl border border-slate-100 shadow-xl overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="table w-full border-collapse">
+                        <thead className="bg-slate-50">
+                            <tr className="text-slate-500 uppercase text-[10px] tracking-widest border-b border-slate-100">
+                                <th className="py-5 px-6">Tutor Details</th>
+                                <th>Subject</th>
+                                <th>Salary</th>
+                                <th>Status</th>
+                                <th className="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {applications.length === 0 ? (
+                                <tr>
+                                    <td colSpan="5" className="text-center py-20">
+                                        <div className="flex flex-col items-center opacity-30">
+                                            <FaClock className="text-5xl mb-4" />
+                                            <p className="font-black uppercase italic text-xl">No applications found.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : (
+                                applications.map((app) => {
+                                    // SAFETY LOGIC: Convert string salary like "$1000" or "Negotiable" to number
+                                    const rawSalary = app.salary ? app.salary.toString().replace(/[$,]/g, '') : "0";
+                                    const isNegotiable = isNaN(parseFloat(rawSalary)) || parseFloat(rawSalary) <= 0;
+                                    const numericSalary = isNegotiable ? 0 : parseFloat(rawSalary);
+
+                                    return (
+                                        <tr key={app._id} className="hover:bg-slate-50/50 transition-colors border-b border-slate-50">
+                                            <td className="py-4 px-6">
+                                                <div className="font-bold text-slate-800">{app.tutorName || "Anonymous Tutor"}</div>
+                                                <div className="text-xs text-slate-400 font-medium">{app.tutorEmail}</div>
+                                            </td>
+                                            <td>
+                                                <span className="font-black text-slate-600 uppercase italic text-sm">
+                                                    {app.subject || "Not Specified"}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div className="font-bold text-slate-700">
+                                                    {isNegotiable ? (
+                                                        <span className="text-orange-500 flex items-center gap-1 text-xs">
+                                                            <FaExclamationTriangle /> Negotiable
+                                                        </span>
+                                                    ) : (
+                                                        `$${numericSalary}`
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span className={`badge badge-sm font-black uppercase text-[10px] px-3 py-3 border-none shadow-sm ${
+                                                    app.status === 'Approved' ? 'bg-amber-100 text-amber-700' : 
+                                                    app.status === 'paid' ? 'bg-emerald-100 text-emerald-700' : 
+                                                    'bg-slate-100 text-slate-500'
+                                                }`}>
+                                                    {app.status}
+                                                </span>
+                                            </td>
+                                            <td className="text-center">
+                                                {/* ACTION BUTTONS */}
+                                                {app.status === 'Approved' ? (
+                                                    isNegotiable ? (
+                                                        <button 
+                                                            disabled
+                                                            className="btn btn-sm opacity-50 cursor-not-allowed rounded-xl text-[10px] font-bold uppercase"
+                                                            title="Salary must be fixed before payment"
+                                                        >
+                                                            Wait for Price
+                                                        </button>
+                                                    ) : (
+                                                        <Link 
+                                                            to={`/dashboard/payment/${app._id}`}
+                                                            state={{ 
+                                                                salary: numericSalary, 
+                                                                tutorEmail: app.tutorEmail, 
+                                                                subject: app.subject || "Tuition Fee" 
+                                                            }}
+                                                            className="btn btn-sm bg-orange-600 hover:bg-orange-700 text-white border-none rounded-xl gap-2 shadow-md shadow-orange-100 px-4"
+                                                        >
+                                                            <FaCreditCard className="text-xs" />
+                                                            Pay Now
+                                                        </Link>
+                                                    )
+                                                ) : app.status === 'paid' ? (
+                                                    <div className="flex items-center justify-center gap-1 text-emerald-600 font-black text-xs uppercase italic">
+                                                        <FaCheckCircle />
+                                                        Success
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex items-center justify-center gap-1 text-slate-400 font-bold text-[10px] uppercase italic">
+                                                        <FaClock />
+                                                        Pending
+                                                    </div>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    );
+                                })
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
+            <p className="mt-6 text-slate-400 text-xs text-center font-medium">
+                * If salary is "Negotiable", please contact the tutor to fix a price before payment.
+            </p>
         </div>
     );
 };

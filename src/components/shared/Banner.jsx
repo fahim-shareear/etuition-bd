@@ -22,7 +22,7 @@ const Banner = () => {
                         <p className="text-lg opacity-90">
                             Connect Students & Tutors, Anytime and Anywhere. The most trusted platform for education in Bangladesh.
                         </p>
-                        <NavLink>
+                        <NavLink to="/tuitions">
                             <button className="btn bg-orange-600 hover:bg-orange-700 border-none text-white mr-5">
                             Find a Tutor
                         </button>
